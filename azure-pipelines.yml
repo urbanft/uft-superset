@@ -1,0 +1,26 @@
+trigger:
+- develop
+- release/*
+- hotfix/*
+
+pool: $(AgentName)
+
+jobs:
+- job: Build_Dev_Image
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'develop'))
+  steps:
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'UFTRegistry-prod'
+      repository: 'uft-superset-develop'
+      command: 'buildAndPush'
+      Dockerfile: '**/Dockerfile.uft'
+- job: Build_Prod_Image
+  condition: or(startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/hotfix/'))
+  steps:
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'UFTRegistry-prod'
+      repository: 'uft-superset'
+      command: 'buildAndPush'
+      Dockerfile: '**/Dockerfile.uft'

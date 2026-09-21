@@ -73,7 +73,6 @@ services:
 
   uft-superset:
     image: uft-superset:develop
-    container_name: superset
     restart: unless-stopped
 
     depends_on:

@@ -1,0 +1,94 @@
+x-superset-environment: &superset-environment
+
+  # --------------------------------------------------
+  # PostgreSQL - external metadata database
+  # --------------------------------------------------
+
+  POSTGRES_HOST: "host.docker.internal"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DATABASE: "uft_superset"
+  POSTGRES_USER: "superset"
+  POSTGRES_PASSWORD: "superset"
+
+  # --------------------------------------------------
+  # Superset security
+  # --------------------------------------------------
+
+  SUPERSET_SECRET_KEY: "K8vQ2mZ7xR4pL9nT6wY3cF5hJ1sD8aB0eN6uX4gP2rV9kM7q"
+
+  # --------------------------------------------------
+  # Guest token / embedded Superset
+  # --------------------------------------------------
+
+  GUEST_TOKEN_JWT_SECRET: "f4N8xQ2mL7vR9kT3pW6zY1cD5sH8jB0eU4gA7nX2qM9"
+  GUEST_TOKEN_JWT_AUDIENCE: "uft"
+
+
+services:
+
+  # --------------------------------------------------
+  # Superset initialization
+  # --------------------------------------------------
+
+  uft-superset-init:
+    image: uft-superset:develop
+    restart: "no"
+
+    entrypoint: [ "/bin/sh" ]
+
+    command:
+      - "-c"
+      - |
+        set -e
+
+        echo "Running Superset DB upgrade..."
+        superset db upgrade
+
+        echo "Creating admin..."
+        superset fab create-admin \
+          --username "$${SUPERSET_ADMIN_USERNAME}" \
+          --firstname "$${SUPERSET_ADMIN_FIRSTNAME}" \
+          --lastname "$${SUPERSET_ADMIN_LASTNAME}" \
+          --email "$${SUPERSET_ADMIN_EMAIL}" \
+          --password "$${SUPERSET_ADMIN_PASSWORD}"
+
+        echo "Initializing Superset..."
+        superset init
+
+        echo "Superset initialization completed."
+
+    environment:
+      <<: *superset-environment
+
+      SUPERSET_ADMIN_USERNAME: "admin"
+      SUPERSET_ADMIN_FIRSTNAME: "Ravi"
+      SUPERSET_ADMIN_LASTNAME: "Pratap"
+      SUPERSET_ADMIN_EMAIL: "rpratap@uft-int.com"
+      SUPERSET_ADMIN_PASSWORD: "Test@123"
+
+
+  # --------------------------------------------------
+  # Superset
+  # --------------------------------------------------
+
+  uft-superset:
+    image: uft-superset:develop
+    container_name: superset
+    restart: unless-stopped
+
+    depends_on:
+      uft-superset-init:
+        condition: service_completed_successfully
+
+    ports:
+      - "8088:8088"
+
+    environment:
+      <<: *superset-environment
+
+    volumes:
+      - uft_superset_home:/app/superset_home
+
+
+volumes:
+  uft_superset_home:

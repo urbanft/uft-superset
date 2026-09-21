@@ -1,0 +1,77 @@
+FROM python:3.11-slim-trixie
+
+RUN useradd --user-group --create-home --no-log-init --shell /bin/bash superset
+
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+RUN apt-get update -y && \
+    apt-get install -y \
+        apt-transport-https \
+        apt-utils \
+        curl \
+        build-essential \
+        libssl-dev \
+        libffi-dev \
+        python3-dev \
+        libsasl2-dev \
+        libldap2-dev \
+        libxi-dev \
+        chromium \
+        zstd \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20
+RUN curl -sL https://deb.nodesource.com/setup_24.x | bash - && \
+    apt-get update -y && \
+    apt-get install -y nodejs && \
+    node --version && \
+    npm --version && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /home/superset && \
+    chown superset:superset /home/superset
+
+WORKDIR /home/superset
+
+# Copy Superset source from the Git checkout
+COPY . .
+
+# Build frontend from source
+WORKDIR /home/superset/superset-frontend
+
+RUN npm ci && \
+    npm run build && \
+    rm -rf node_modules
+
+# Install Superset Python package from source
+WORKDIR /home/superset
+
+RUN pip install --upgrade setuptools pip && \
+    pip install -r requirements/base.txt && \
+    pip install --no-cache-dir .
+
+RUN pip install --no-cache-dir -r requirements/extra.txt
+
+# Compile translations
+RUN flask fab babel-compile --target superset/translations
+
+# Superset runtime directories
+RUN mkdir -p /app/pythonpath /app/superset_home && \
+    chown -R superset:superset /app/pythonpath /app/superset_home
+
+# Custom Superset configuration
+COPY superset_config.py /app/pythonpath/superset_config.py
+
+ENV PATH=/home/superset/superset/bin:$PATH \
+    PYTHONPATH=/app/pythonpath \
+    FLASK_APP=superset.app:create_app() \
+    SUPERSET_ENV=production \
+    SUPERSET_HOME=/app/superset_home \
+    HOME=/app/superset_home
+
+COPY docker/entrypoints/run-server.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -19,6 +19,8 @@ RUN apt-get update -y && \
         libxi-dev \
         chromium \
         zstd \
+        zip \
+        unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20
@@ -62,6 +64,14 @@ RUN mkdir -p /app/pythonpath /app/superset_home && \
 
 # Custom Superset configuration
 COPY superset_config.py /app/pythonpath/superset_config.py
+
+COPY assets /app/assets
+
+COPY replace_superset_assets.py /app/replace_superset_assets.py
+
+COPY uft-scripts/ /app/scripts/
+
+RUN chmod +x /app/scripts/superset-init.sh /app/scripts/superset-import.sh
 
 ENV PATH=/home/superset/superset/bin:$PATH \
     PYTHONPATH=/app/pythonpath \

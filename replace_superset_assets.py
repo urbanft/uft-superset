@@ -199,6 +199,7 @@ def replace_database_uri(
 def update_datasets(
     bundle_root: Path,
     database_uuid: str,
+    database_schema: str,
     dataset_names: list[str],
 ):
     datasets_dir = bundle_root / "datasets"
@@ -275,6 +276,14 @@ def update_datasets(
 
         config["database_uuid"] = database_uuid
 
+        # --------------------------------------------------------
+        # Update dataset schema from CLICKHOUSE_DATABASE
+        # --------------------------------------------------------
+
+        old_schema = config.get("schema")
+
+        config["schema"] = database_schema
+
         dataset_file.write_text(
             yaml.safe_dump(
                 config,
@@ -298,6 +307,12 @@ def update_datasets(
                 f"{old_database_uuid} -> "
                 f"{database_uuid}"
             )
+
+        print(
+            f"  schema: "
+            f"{old_schema} -> "
+            f"{database_schema}"
+        )
 
     missing = requested - found
 
@@ -327,6 +342,19 @@ def main():
             "SUPERSET_DATA_SOURCES.datasets must be a list"
         )
 
+    # ------------------------------------------------------------
+    # ClickHouse database/schema
+    # ------------------------------------------------------------
+
+    database_schema = os.environ.get(
+        "CLICKHOUSE_DATABASE"
+    )
+
+    if not database_schema:
+        raise RuntimeError(
+            "CLICKHOUSE_DATABASE environment variable is required"
+        )
+
     print()
     print(
         "============================================================"
@@ -341,6 +369,11 @@ def main():
     print()
     print(
         f"Target Superset database: {database_name}"
+    )
+
+    print(
+        f"Target ClickHouse database/schema: "
+        f"{database_schema}"
     )
 
     print(
@@ -411,6 +444,7 @@ def main():
         update_datasets(
             bundle_root,
             database_uuid,
+            database_schema,
             dataset_names,
         )
     else:

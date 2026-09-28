@@ -98,20 +98,6 @@ if [ ! -d "$ASSETS_DIR" ]; then
 fi
 
 # ------------------------------------------------------------
-# Wait for Superset
-# ------------------------------------------------------------
-
-echo ""
-echo "Waiting for Superset..."
-
-until curl -sf "${SUPERSET_URL}/health" >/dev/null 2>&1; do
-    echo "Superset is not ready yet..."
-    sleep 3
-done
-
-echo "Superset is ready."
-
-# ------------------------------------------------------------
 # Find dashboard bundle
 # ------------------------------------------------------------
 

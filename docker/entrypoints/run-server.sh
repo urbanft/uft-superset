@@ -17,7 +17,28 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+set -e
+
 HYPHEN_SYMBOL='-'
+
+echo ""
+echo "Running Superset database migrations..."
+
+/app/scripts/superset-init.sh
+
+echo "Superset database migration completed successfully."
+
+# ------------------------------------------------------------
+# Superset asset import
+# ------------------------------------------------------------
+
+echo ""
+echo "Running Superset asset import..."
+
+/app/scripts/superset-import.sh
+
+echo "Superset asset import completed successfully."
 
 STATSD_ARGS=()
 STATSD_HOST="${SERVER_STATSD_HOST//[[:space:]]/}"

@@ -25,6 +25,7 @@ SQLALCHEMY_DATABASE_URI = (
 
 SECRET_KEY = os.environ["SUPERSET_SECRET_KEY"]
 
+ENABLE_PROXY_FIX = True
 
 # --------------------------------------------------
 # Embedded Superset

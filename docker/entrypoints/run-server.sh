@@ -40,6 +40,11 @@ echo "Running Superset asset import..."
 
 echo "Superset asset import completed successfully."
 
+echo ""
+echo "Configuring InternalUser role for Superset..."
+
+/app/scripts/create_internal_user_role.sh
+
 STATSD_ARGS=()
 STATSD_HOST="${SERVER_STATSD_HOST//[[:space:]]/}"
 if [ -n "${STATSD_HOST}" ]; then

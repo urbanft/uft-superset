@@ -5,6 +5,9 @@ services:
   # Superset
   # --------------------------------------------------
 
+  #AUTH_LDAP_SERVER: "ldaps://UFT-DC02.uft-int.com:636"
+  #AUTH_LDAP_SERVER: "ldap://UFT-DC02.uft-int.com:389"
+
   uft-superset:
     image: uft-superset:develop
     restart: unless-stopped
@@ -16,7 +19,7 @@ services:
 
       POSTGRES_HOST: "host.docker.internal"
       POSTGRES_PORT: "5433"
-      POSTGRES_DATABASE: "uft_superset-demo"
+      POSTGRES_DATABASE: "uft_superset"
       POSTGRES_USER: "superset"
       POSTGRES_PASSWORD: "superset"
 
@@ -38,6 +41,17 @@ services:
       CLICKHOUSE_DATABASE: "return_settlements"
       CLICKHOUSE_USERNAME: "admin"
       CLICKHOUSE_PASSWORD: "admin"
+
+      SUPERSET_AUTH_TYPE: "ldap" # db #ldap
+
+      AUTH_LDAP_SERVER: "ldap://UFT-DC02.uft-int.com:389"
+      AUTH_LDAP_USE_TLS: "false"
+      AUTH_LDAP_SEARCH: "DC=uft-int,DC=com"
+
+      AUTH_LDAP_BIND_USER: "rpratap@uft-int.com"
+      AUTH_LDAP_BIND_PASSWORD: ""
+
+      AUTH_LDAP_UID_FIELD: "sAMAccountName"
 
     volumes:
       - uft_superset_home:/app/superset_home

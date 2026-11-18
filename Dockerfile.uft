@@ -68,10 +68,11 @@ COPY superset_config.py /app/pythonpath/superset_config.py
 COPY assets /app/assets
 
 COPY replace_superset_assets.py /app/replace_superset_assets.py
+COPY create_internal_user_role.py /app/create_internal_user_role.py
 
 COPY uft-scripts/ /app/scripts/
 
-RUN chmod +x /app/scripts/superset-init.sh /app/scripts/superset-import.sh
+RUN chmod +x /app/scripts/superset-init.sh /app/scripts/superset-import.sh /app/scripts/create_internal_user_role.sh
 
 ENV PATH=/home/superset/superset/bin:$PATH \
     PYTHONPATH=/app/pythonpath \

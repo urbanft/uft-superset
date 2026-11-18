@@ -1,5 +1,5 @@
 import os
-
+from flask_appbuilder.security.manager import AUTH_LDAP, AUTH_DB
 
 # --------------------------------------------------
 # PostgreSQL - Superset metadata database
@@ -66,3 +66,44 @@ CORS_OPTIONS = {
 # --------------------------------------------------
 
 TALISMAN_ENABLED = False
+
+
+WTF_CSRF_ENABLED = False
+
+WTF_CSRF_EXEMPT_LIST = [
+    "superset.security.api.guest_token",
+]
+
+AUTH_TYPE = (AUTH_LDAP if os.getenv("SUPERSET_AUTH_TYPE", "db").lower() == "ldap" else AUTH_DB)
+
+AUTH_USER_REGISTRATION = True
+
+AUTH_LDAP_SERVER = os.getenv("AUTH_LDAP_SERVER")
+AUTH_LDAP_USE_TLS = os.getenv("AUTH_LDAP_USE_TLS", "false").lower() == "true"
+
+AUTH_LDAP_SEARCH = os.getenv("AUTH_LDAP_SEARCH")
+
+AUTH_LDAP_BIND_USER = os.getenv("AUTH_LDAP_BIND_USER")
+AUTH_LDAP_BIND_PASSWORD = os.getenv("AUTH_LDAP_BIND_PASSWORD")
+
+AUTH_LDAP_UID_FIELD = os.getenv("AUTH_LDAP_UID_FIELD","sAMAccountName",)
+
+AUTH_LDAP_FIRSTNAME_FIELD = os.getenv("AUTH_LDAP_FIRSTNAME_FIELD","givenName",)
+
+AUTH_LDAP_LASTNAME_FIELD = os.getenv("AUTH_LDAP_LASTNAME_FIELD","sn",)
+
+AUTH_LDAP_EMAIL_FIELD = os.getenv("AUTH_LDAP_EMAIL_FIELD","mail",)
+
+AUTH_LDAP_TLS_DEMAND = False
+
+AUTH_LDAP_ALLOW_LOCAL_DB = True
+
+AUTH_USER_REGISTRATION_ROLE = "InternalUser"
+
+AUTH_ROLES_MAPPING = {
+    "Domain Admins": ["Admin"],
+    "Administrators": ["Admin"],
+    "Devadmins": ["Admin"],
+}
+
+AUTH_ROLES_SYNC_AT_LOGIN = True

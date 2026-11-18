@@ -51,7 +51,7 @@ GUEST_TOKEN_JWT_EXP_SECONDS = 3600
 
 ENABLE_CORS = True
 
-FAB_API_SWAGGER_UI = True
+FAB_API_SWAGGER_UI = False
 
 CORS_OPTIONS = {
     "supports_credentials": True,
@@ -66,3 +66,10 @@ CORS_OPTIONS = {
 # --------------------------------------------------
 
 TALISMAN_ENABLED = False
+
+
+WTF_CSRF_ENABLED = False
+
+WTF_CSRF_EXEMPT_LIST = [
+    "superset.security.api.guest_token",
+]

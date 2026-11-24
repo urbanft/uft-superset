@@ -1,5 +1,5 @@
 trigger:
-- develop
+- main
 - release/*
 - hotfix/*
 
@@ -7,7 +7,7 @@ pool: $(AgentName)
 
 jobs:
 - job: Build_Dev_Image
-  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'develop'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'))
   steps:
   - task: Docker@2
     inputs:
